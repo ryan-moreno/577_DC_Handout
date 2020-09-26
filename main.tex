@@ -1,0 +1,139 @@
+\documentclass[11pt]{article}
+
+\usepackage{enumitem}
+\usepackage{fullpage}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+
+\usepackage{tikz}
+
+\usepackage[bookmarks=true,hypertexnames=false]{hyperref} % hypertexnames=false is more robust
+\hypersetup{colorlinks=true, linkcolor=red, urlcolor=blue}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}} % replace ``Require:'' with ``Input:'', see http://tipstrickshowtos.blogspot.com/2010/11/replace-require-and-ensure-with-input.html
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % replace ``Ensure:'' with ``Output:'', see http://tipstrickshowtos.blogspot.com/2010/11/replace-require-and-ensure-with-input.html
+
+\usepackage{fixltx2e} % defines \MakeRobust (which is used on the next line)
+\MakeRobust{\Call}    % allows nested calls, see http://tex.stackexchange.com/questions/16046/how-to-nest-call-in-algorithmicx
+
+\newcommand{\probspec}[2]{%
+  \smallskip
+  \par\noindent
+  {\bf Input:} #1
+  \smallskip
+  \par\noindent
+  {\bf Output:} #2
+  \par\smallskip%
+}
+
+\newcommand{\bigo}{\mathcal{O}}
+
+\begin{document}
+
+
+\noindent
+\fbox{
+  \begin{minipage}{0.97\textwidth}
+    \textbf{CS 577: Introduction to Algorithms}
+    \hfill
+    Fall 2020
+    \begin{center}
+      {\Large How to Develop a Divide \& Conquer Algorithm}
+    \end{center}
+    Instructor: Dieter van Melkebeek
+    \hfill
+    TA: Ryan Moreno and Drew Morgan
+  \end{minipage}
+}
+
+\bigskip
+\medskip
+
+\noindent
+This handout is meant to provide a basic structure for the problem solving and write-up steps for divide and conquer problems. Please note that these are not required patterns; they are merely suggestions. Any solution that is clear, correct, sufficiently efficient, and analyzed properly (correctness and complexity) will get full credit.
+
+\section{Suggested Write-up Format}
+\begin{enumerate}
+    \item Clearly state the input and output of your algorithm.
+    \item Describe your algorithm at a level that explains the intuition and key ideas. We should understand your basic approach without having to reverse-engineer your pseudocode.
+    \item Include pseudocode (with comments) if it adds clarity.
+    \item Prove the correctness of your algorithm.
+    \item Analyze the runtime of your algorithm.
+\end{enumerate}
+
+\section{Algorithm Description}
+I like to think of breaking the divide and conquer approach into three pieces:
+\begin{enumerate}
+    \item \textbf{Split} your input into smaller-sized inputs that you can recursively call your algorithm on. As seen in class, this will often take the form of splitting your input in half (for example, splitting the input array in half or breaking the input integer into the left-most digits and the right-most digits). You need to split your input such that the results of these recursive calls are useful in calculating the output for the original problem.
+    \item \textbf{Stitch} together the results of your recursive calls. You need to explain how you would combine the results of your recursive calls into something that helps you answer the original question. For example, in \textsc{MergeSort} we used \textsc{Merge} to combine two sorted subarrays into one sorted array.
+    \item \textbf{Base Case(s)}. You need to consider when you should stop recursing. At what point is your input small enough that you cannot split it further? Explain what your algorithm will return in these cases.
+\end{enumerate}
+These are the three key ideas that you need to communicate to the reader so that we understand how your algorithm works. To make sure that you cover all corner cases and don't gloss over any details, I suggest also including pseudocode (with comments) for your algorithm. However, make sure to describe your algorithm first so that we do not have to reverse-engineer your pseudocode.
+
+\noindent
+You are free to use algorithms from class, just state which algorithm you are using and its specifications.
+
+\section{Correctness}
+Because we are using divide-and-conquer, which is inherently recursive in nature, you will want to use proof by induction to prove your algorithm's correctness. You need to prove that your implementation correctly computes the specification.
+\begin{enumerate}
+    \item \textbf{Specifications} (estimated 1-2 sentences) \\
+ Make sure that you have clearly stated your algorithm's specifications, which are made up of the inputs to your algorithm (along with any restrictions to your inputs, such as restricting the elements of an array to positive integers) and the outputs of your algorithm (along with what you guarantee to be true about the outputs, such as guaranteeing an output array to be sorted). 
+
+    \item \textbf{Base Case(s)} (estimated 1-2 sentences) \\
+At this point you are ready to use induction. Start with your inductive base case, which corresponds to your algorithm's base case. This will often look like something of the form ``input $n = 1$'' or ``the input is of size $n = 1$''. You must explain that, in the base case, what your algorithm returns matches the problem specification. Your base case might seem obvious (for example, ``an array of size $n = 1$ is already sorted, so by returning the input as it is, we are correctly returning the sorted input array''). Even so, you need to include the base case for completeness. 
+
+    \item \textbf{Inductive Hypothesis} (estimated 1 sentence) \\
+Next, state the inductive hypothesis, which is that the algorithm correctly returns the specified output for $n \leq k$ (note that this is strong induction, which you will most likely need). This will look something like ``for an input array of size $n = k$, the algorithm correctly returns the sorted version of the input array.'' The inductive hypothesis corresponds to your algorithm's recursive calls because the inductive hypothesis claims the calls' correctness.
+
+    \item \textbf{Step} (estimated 1 paragraph) \\
+Finally, the bulk of your proof comes in the inductive step, which corresponds to the recursive case of your algorithm (everything that's not the base case). In the inductive step, you consider the case $n=k+1$. You need to explain why the value your algorithm returns matches the specification's output. Your key tool is that you get to assume that the recursive calls are correct (by the inductive hypothesis).
+\end{enumerate}
+Something of note: if you are having significant trouble proving the correctness of your algorithm, it may be that your algorithm is not correct. It is impossible to prove something that is false! If you think this might be the case, return to the algorithm development stage and try to see where your algorithm might be going wrong (specific example inputs might help). 
+
+\section{Complexity Analysis}
+To analyze the runtime, you will want to use the recursion tree method we've been using in class in which you draw a tree with each node representing a call to your algorithm. The steps are as follows:
+
+\begin{enumerate}
+    \item Model your algorithm's recursion through the shape of the tree. All non-leaf nodes will have a number of children corresponding to the number of recursive calls in your algorithm.
+    
+    \item Calculate the work done at each node of the recursion tree by analyzing the runtime of your algorithm line-by-line, excluding the recursive calls (because they are accounted for by the shape of the recursion tree). You will also need to specify the input size at a given node. For example, if your algorithm makes recursive calls with input size half of the original input, then the input size for a node at level $d$ is $\frac{n}{2^d}$. If this same algorithm takes $\bigo(n)$ time other than the recursive calls, then the amount of work done for a node at level $d$ would be $c \cdot \frac{n}{2^d}$.
+    
+    \item Determine the amount of work done over the entire recursion tree. There are some problems that require a unique approach for this step (such as in HW01 \#1 when the work done at a given non-leaf node was proportional to the number of its children, so determining the total work done over the recursion tree involved the number of edges). However, this step will most often consist of determining the amount of work done at each level of your recursion tree and then summing up over all of the levels of your tree. The common approach is detailed below.
+    
+    \begin{enumerate}
+        \item Determine the amount of work done at each level of your recursion tree. You will need to specify the number of nodes at a given level in terms of the depth $d$. For example, if your algorithm takes $\bigo(n)$ time other than the recursive calls and makes two recursive calls, each of input size half of the original input, then the amount of work done at level $d$ of your recursion tree is $c \cdot \frac{n}{2^d} \cdot 2^d$.
+        
+        \item Finally, sum over all of the levels of your recursion tree to calculate the total work done by your algorithm. This will often come in the form of a geometric series.
+    \end{enumerate}
+\end{enumerate}
+
+% The tree starts with a single root node with input size $n$, corresponding to the top-level recursive call. We will consider this root node to be at depth $d = 0$. Your root node has as many children as your algorithm has recursive calls. These child nodes should be labeled with an input size corresponding to the size of the smaller input passed into the recursive calls. As an example, if your algorithm makes two recursive calls with input half of the original input size, then your root node will have two child nodes, each labeled with size $n/2$. Continue in this manner for one or two levels, with each node branching as many times as your algorithm has recursive calls. In the example just used, at depth $d = 2$, your tree would have four nodes, each labeled with size $n/4$.
+
+% Now you need to consider the amount of work done in a single call of your algorithm, excluding the recursive calls. You can ignore the recursive calls because they are already modeled by the shape of your recursion tree. Note that if your algorithm makes calls to other algorithms, these are subroutines -- not recursive calls -- and their runtime should be included in the amount of work done.
+
+% Coming back to the recursion tree, you need to calculate how much work is done at each level of your recursion tree. The amount of work done at depth $d$ is the amount of work done in a single call of your algorithm with input size corresponding to depth $d$ multiplied by the number of nodes at depth $d$. Continuing with the example in which your algorithm makes two recursive calls with input half of the original input size, let's also assume that the amount of work done in a single call of this algorithm is $\bigo(n)$. Then, the amount of work done at depth $d$ of your recursion tree is some constant $c$ multiplied by the amount of work done at a given node of depth $d$ multiplied by the number of nodes at depth $d$: $c \cdot \frac{n}{2^d} \cdot 2^d$. 
+
+% Finally, you must sum up the work done at each level to get the total work done by your algorithm. This will often result in a geometric series. In the above example the work done is $\sum_{d = 0}^{\log(n)} c \cdot \frac{n}{2^d} \cdot 2^d = cn \sum_{d = 0}^{\log(n)} 1 = n \log(n)$. So, your final runtime is $\Theta(n \log(n))$.
+
+\subsection*{Reminder: Relevant Geometric Series Equations}
+
+\begin{align*}
+    \text{For }\alpha > 1 \text{: \; \; \;} &\sum_{i = 0}^{d} \alpha^i = \frac{\alpha^{d+1} - 1}{\alpha - 1} \text{\; \; which is } \Theta(\alpha^d) \\
+     \text{For }\alpha = 1 \text{: \; \; \;} &\sum_{i = 0}^{d} \alpha^i = d+1 \text{\; \; \; \; \;  which is } \Theta(d) \\
+    \text{For }0 < \alpha < 1 \text{: \; \; \;} &\sum_{i = 0}^{\infty} \alpha^i = \frac{1}{1-\alpha} \text{\; \; \; \, \, which is } \Theta(1)
+\end{align*}
+
+\section{Example Write-up}
+The solutions we hand out are intended to help all students, so they cover a number of possible avenues and are verbose. We don't expect students to do that. Here is a sample solution for \mbox{HW01 \#3a} that doesn't have all of the extra material, follows the above outline, and would get full credit.
+
+
+\end{document}
+
+
